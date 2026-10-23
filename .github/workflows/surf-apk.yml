@@ -11,7 +11,9 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Clone mihomo core
-        run: git clone --depth 1 -b FlClash https://github.com/chen08209/Clash.Meta.git core/Clash.Meta
+        run: |
+          git clone -b FlClash https://github.com/chen08209/Clash.Meta.git core/Clash.Meta
+          git -C core/Clash.Meta checkout 8380d0e7462f061a964323e9bf3129a236fcc5d5
 
       - uses: actions/setup-go@v5
         with:
