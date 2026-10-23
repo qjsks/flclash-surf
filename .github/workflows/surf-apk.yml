@@ -1,0 +1,56 @@
+name: surf-apk
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Clone mihomo core
+        run: git clone --depth 1 -b FlClash https://github.com/chen08209/Clash.Meta.git core/Clash.Meta
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.27.1'
+          cache: false
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: '3.47.6'
+          cache: false
+
+      - uses: nttld/setup-ndk@v1
+        id: ndk
+        with:
+          ndk-version: r28c
+          add-to-path: true
+          link-to-sdk: true
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Dependencies
+        run: flutter pub get
+
+      - name: CA bundle
+        run: |
+          bundle=core/Clash.Meta/component/ca/ca-certificates.crt
+          curl -fsSL --retry 3 -o "$bundle" https://curl.se/ca/cacert-2026-09-25.pem
+
+      - name: Build APK
+        env:
+          ANDROID_NDK_HOME: ${{ steps.ndk.outputs.ndk-path }}
+        run: flutter build apk --debug --target-platform android-arm64
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: surf-apk
+          path: build/app/outputs/flutter-apk/app-debug.apk
+          if-no-files-found: error
