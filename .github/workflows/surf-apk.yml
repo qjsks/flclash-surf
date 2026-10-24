@@ -1,5 +1,8 @@
 name: surf-apk
 
+permissions:
+  contents: write
+
 on:
   push:
   workflow_dispatch:
@@ -56,3 +59,11 @@ jobs:
           name: surf-apk
           path: build/app/outputs/flutter-apk/app-debug.apk
           if-no-files-found: error
+
+      - name: Publish Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: surf-${{ github.run_number }}
+          name: Surf UI ${{ github.run_number }}
+          body: FlClash mihomo core + Surfboard-style UI (profiles/dashboard/tools)
+          files: build/app/outputs/flutter-apk/app-debug.apk
